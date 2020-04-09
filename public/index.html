@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Docker Swarm Visualiser</title>
+    <script
+      src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
+      defer
+    ></script>
+    <link rel="stylesheet" href="app.css" />
+  </head>
+  <body class="bg-gray-800">
+    <div class="container mx-auto">
+      <div
+        class="flex bg-gray-700 shadow shadow-lg mt-8 p-4"
+        x-data="{nodes: nodeList}"
+      >
+        <span @refreshnodes="nodes = getNodeList()" id="nodelist">
+          <template x-for="node in nodes" x-key="node.ID">
+            <div class="bg-gray-500 p-4 rounded">
+              <div
+                class="flex items-center justify-between mb-4 border-l-8 px-2"
+                :class="{ 'border-red-600': node.Spec.Availability !== 'active' }"
+              >
+                <span
+                  x-text="node.Description.Hostname"
+                  class="text-2xl"
+                ></span>
+                <span
+                  x-text="node.Spec.Role.capitalize()"
+                  class="text-xl"
+                ></span>
+                <span
+                  x-text="`${Math.round(((node.Description.Resources.MemoryBytes / 1024) / 1024) / 1024)}GB`"
+                  class="text-xl"
+                ></span>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <template x-for="task in node.tasks" x-key="task.ID">
+                  <div class="bg-gray-600 shadow flex flex-col p-4">
+                    <span
+                      class="font-bold text-gray-100 mb-2"
+                      :class="{ 'border-b-2 border-red-600': task.Status.State !== 'running' }"
+                      x-text="`${task.Spec.ContainerSpec.Image.split(':')[0]}`"
+                    ></span>
+                    <span class="flex items-center justify-between">
+                      <span>ID</span>
+                      <span x-text="task.ID" class="font-bold"></span>
+                    </span>
+                    <span class="flex items-center justify-between">
+                      <span>Tag</span>
+                      <span
+                        x-text="task.Spec.ContainerSpec.Image.split(':')[1].split('@')[0]"
+                        class="font-bold"
+                      ></span>
+                    </span>
+                    <span class="flex items-center justify-between">
+                      <span>Args</span>
+                      <span
+                        x-text="task.Spec.ContainerSpec.hasOwnProperty('Args') ? task.Spec.ContainerSpec.Args.join(' ') : ''"
+                        class="font-bold"
+                      ></span>
+                    </span>
+                    <span class="flex items-center justify-between">
+                      <span>Updated</span>
+                      <span
+                        x-text="task.UpdatedAt ? Date.parse(task.UpdatedAt).toLocaleString('en-GB') : Date.parse(task.CreatedAt).toLocaleString('en-GB')"
+                        class="font-bold"
+                      ></span>
+                    </span>
+                    <span class="flex items-center justify-between">
+                      <span>Status</span>
+                      <span x-text="task.Status.State" class="font-bold"></span>
+                    </span>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+        </span>
+      </div>
+    </div>
+    <script>
+      // don't @me
+      String.prototype.capitalize = function() {
+        return this.charAt(0).toUpperCase() + this.slice(1);
+      };
+      let nodeList = [];
+      let taskList = [];
+
+      function refresh() {
+        fetch("/nodes")
+          .then((res) => {
+            return res.json();
+          })
+          .then((nodes) => {
+            nodeList = nodes;
+            fetch("/tasks")
+              .then((res) => {
+                return res.json();
+              })
+              .then((tasks) => {
+                taskList = tasks;
+                taskList.forEach((task) => {
+                  let nodeIndex = nodeList.findIndex((node) => {
+                    return node.ID == task.NodeID;
+                  });
+                  if (nodeIndex === -1) {
+                    console.error("Uh?");
+                    return;
+                  }
+                  if (!nodeList[nodeIndex].hasOwnProperty("tasks")) {
+                    nodeList[nodeIndex].tasks = [];
+                  }
+                  nodeList[nodeIndex].tasks.push(task);
+                });
+                var event = new CustomEvent("refreshnodes", { detail: nodes });
+                const nodeEl = document.querySelector("#nodelist");
+                nodeEl.dispatchEvent(event);
+                console.log(nodeList);
+                setTimeout(refresh, 1000);
+              });
+          });
+      }
+
+      function getNodeList() {
+        return nodeList;
+      }
+
+      refresh();
+    </script>
+  </body>
+</html>
