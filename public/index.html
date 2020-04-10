@@ -40,10 +40,10 @@
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <template x-for="task in node.tasks" x-key="task.ID">
-                  <div class="bg-gray-600 shadow flex flex-col p-4">
+                  <div x-show.transition.duration.300ms="true" class="bg-gray-600 shadow flex flex-col p-4">
                     <span
-                      class="font-semibold tracking-wider text-gray-100 mb-2"
-                      :class="{ 'border-b-2 border-red-600': task.Status.State !== 'running' }"
+                      class="font-semibold tracking-wider text-gray-100 mb-2 transition-all duration-1000 ease-in-out border-b-2 border-transparent"
+                      :class="{ 'border-red-600': task.Status.State !== 'running' }"
                       x-text="`${task.Spec.ContainerSpec.Image.split(':')[0]}`"
                     ></span>
                     <span class="flex items-center justify-between">
