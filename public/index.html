@@ -45,38 +45,38 @@
                 <template x-for="task in node.tasks" x-key="task.ID">
                   <div class="bg-gray-600 shadow flex flex-col p-4">
                     <span
-                      class="font-bold text-gray-100 mb-2"
+                      class="font-semibold tracking-wider text-gray-100 mb-2"
                       :class="{ 'border-b-2 border-red-600': task.Status.State !== 'running' }"
                       x-text="`${task.Spec.ContainerSpec.Image.split(':')[0]}`"
                     ></span>
                     <span class="flex items-center justify-between">
-                      <span>ID</span>
-                      <span x-text="task.ID" class="font-bold"></span>
+                      <span class="font-light">ID</span>
+                      <span x-text="task.ID" class="font-semibold"></span>
                     </span>
                     <span class="flex items-center justify-between">
-                      <span>Tag</span>
+                      <span class="font-light">Tag</span>
                       <span
                         x-text="task.Spec.ContainerSpec.Image.split(':')[1].split('@')[0]"
-                        class="font-bold"
+                        class="font-semibold"
                       ></span>
                     </span>
                     <span class="flex items-center justify-between">
-                      <span>Args</span>
+                      <span class="font-light">Args</span>
                       <span
                         x-text="task.Spec.ContainerSpec.hasOwnProperty('Args') ? task.Spec.ContainerSpec.Args.join(' ') : ''"
-                        class="font-bold"
+                        class="font-semibold"
                       ></span>
                     </span>
                     <span class="flex items-center justify-between">
-                      <span>Updated</span>
+                      <span class="font-light">Updated</span>
                       <span
                         x-text="new Date(task.UpdatedAt ? Date.parse(task.UpdatedAt) : Date.parse(task.CreatedAt)).toLocaleString()"
-                        class="font-bold"
+                        class="font-semibold"
                       ></span>
                     </span>
                     <span class="flex items-center justify-between">
-                      <span>Status</span>
-                      <span x-text="task.Status.State" class="font-bold"></span>
+                      <span class="font-light">Status</span>
+                      <span x-text="task.Status.State" class="font-semibold"></span>
                     </span>
                   </div>
                 </template>
