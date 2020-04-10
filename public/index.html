@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Docker Swarm Visualiser</title>
     <script
-      src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
+      src="app.js"
       defer
     ></script>
     <link rel="stylesheet" href="app.css" />
   </head>
   <body class="bg-gray-800">
-    <div class="container mx-auto">
+    <div class="container mx-auto mt-8">
+      <div class="flex justify-end w-full opacity-25">
+        <img src="docker_logo.svg">
+      </div>
       <div
         class="flex bg-gray-700 shadow shadow-lg mt-8 p-4"
         x-data="{nodes: nodeList}"
@@ -67,7 +70,7 @@
                     <span class="flex items-center justify-between">
                       <span>Updated</span>
                       <span
-                        x-text="task.UpdatedAt ? Date.parse(task.UpdatedAt).toLocaleString('en-GB') : Date.parse(task.CreatedAt).toLocaleString('en-GB')"
+                        x-text="new Date(task.UpdatedAt ? Date.parse(task.UpdatedAt) : Date.parse(task.CreatedAt)).toLocaleString()"
                         class="font-bold"
                       ></span>
                     </span>
@@ -104,20 +107,22 @@
               })
               .then((tasks) => {
                 taskList = tasks;
-                taskList.forEach((task) => {
-                  let nodeIndex = nodeList.findIndex((node) => {
-                    return node.ID === task.NodeID;
+                taskList
+                  .filter((task) => task.DesiredState === "running")
+                  .forEach((task) => {
+                    let nodeIndex = nodeList.findIndex((node) => {
+                      return node.ID === task.NodeID;
+                    });
+                    if (nodeIndex === -1) {
+                      console.error("Uh?");
+                      return;
+                    }
+                    if (!nodeList[nodeIndex].hasOwnProperty("tasks")) {
+                      nodeList[nodeIndex].tasks = [];
+                    }
+                    nodeList[nodeIndex].tasks.push(task);
                   });
-                  if (nodeIndex === -1) {
-                    console.error("Uh?");
-                    return;
-                  }
-                  if (!nodeList[nodeIndex].hasOwnProperty("tasks")) {
-                    nodeList[nodeIndex].tasks = [];
-                  }
-                  nodeList[nodeIndex].tasks.push(task);
-                });
-                var event = new CustomEvent("refreshnodes", { detail: nodes });
+                const event = new CustomEvent("refreshnodes", { detail: nodes });
                 const nodeEl = document.querySelector("#nodelist");
                 nodeEl.dispatchEvent(event);
                 setTimeout(refresh, 1000);

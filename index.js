@@ -8,13 +8,24 @@ app.use(cors());
 const docker = new Docker({ socketPath: "/var/run/docker.sock" });
 
 const port = process.env.VIS_PORT ? process.env.VIS_PORT : 3000;
-const refreshInterval = process.env.VIS_REFRESH ? process.env.VIS_REFRESH : 1000;
+const refreshInterval = process.env.VIS_REFRESH
+  ? process.env.VIS_REFRESH
+  : 1000;
 var nodeList = [];
 var taskList = [];
 
+process.once("SIGINT", function(code) {
+  console.log("SIGINT received...");
+  process.exit(0);
+});
+process.once("SIGTERM", function(code) {
+  console.log("SIGTERM received...");
+  process.exit(0);
+});
+
 async function refreshDockerInfo() {
-  nodeList = await docker.listNodes().catch(err => console.error(err));
-  taskList = await docker.listTasks().catch(err => console.error(err));
+  nodeList = await docker.listNodes().catch((err) => console.error(err));
+  taskList = await docker.listTasks().catch((err) => console.error(err));
   setTimeout(refreshDockerInfo, refreshInterval);
 }
 
