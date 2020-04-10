@@ -16,7 +16,7 @@
         class="flex bg-gray-700 shadow shadow-lg mt-8 p-4"
         x-data="{nodes: nodeList}"
       >
-        <span @refreshnodes="nodes = getNodeList()" id="nodelist">
+        <span @refreshnodes="nodes = $event.detail" id="nodelist">
           <template x-for="node in nodes" x-key="node.ID">
             <div class="bg-gray-500 p-4 rounded">
               <div
@@ -27,14 +27,16 @@
                   x-text="node.Description.Hostname"
                   class="text-2xl"
                 ></span>
-                <span
-                  x-text="node.Spec.Role.capitalize()"
-                  class="text-xl"
-                ></span>
-                <span
-                  x-text="`${Math.round(((node.Description.Resources.MemoryBytes / 1024) / 1024) / 1024)}GB`"
-                  class="text-xl"
-                ></span>
+                <span>
+                  <span
+                    x-text="node.Spec.Role.capitalize()"
+                    class="text-xl"
+                  ></span>
+                  <span
+                    x-text="`${Math.round(((node.Description.Resources.MemoryBytes / 1024) / 1024) / 1024)}GB`"
+                    class="text-xl"
+                  ></span>
+                </span>
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <template x-for="task in node.tasks" x-key="task.ID">
@@ -104,7 +106,7 @@
                 taskList = tasks;
                 taskList.forEach((task) => {
                   let nodeIndex = nodeList.findIndex((node) => {
-                    return node.ID == task.NodeID;
+                    return node.ID === task.NodeID;
                   });
                   if (nodeIndex === -1) {
                     console.error("Uh?");
@@ -118,14 +120,9 @@
                 var event = new CustomEvent("refreshnodes", { detail: nodes });
                 const nodeEl = document.querySelector("#nodelist");
                 nodeEl.dispatchEvent(event);
-                console.log(nodeList);
                 setTimeout(refresh, 1000);
               });
           });
-      }
-
-      function getNodeList() {
-        return nodeList;
       }
 
       refresh();
