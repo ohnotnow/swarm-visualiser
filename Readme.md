@@ -23,3 +23,7 @@ docker run -v /var/run/docker.sock:/var/run/docker.sock -p 3000:3000 vis:0.1
 ```
 
 In either case you should be able to visit http://localhost:3000 in your browser and see the page.
+
+There is also a little bash script you can run by doing `./demo.sh` which will create two services
+and scale them randomly between 1-10 containers.
+
