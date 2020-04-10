@@ -4,16 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Docker Swarm Visualiser</title>
-    <script
-      src="app.js"
-      defer
-    ></script>
+    <script src="app.js" defer></script>
     <link rel="stylesheet" href="app.css" />
   </head>
   <body class="bg-gray-800">
     <div class="container mx-auto mt-8">
       <div class="flex justify-end w-full opacity-25">
-        <img src="docker_logo.svg">
+        <img src="docker_logo.svg" />
       </div>
       <div
         class="flex bg-gray-700 shadow shadow-lg mt-8 p-4"
@@ -76,7 +73,10 @@
                     </span>
                     <span class="flex items-center justify-between">
                       <span class="font-light">Status</span>
-                      <span x-text="task.Status.State" class="font-semibold"></span>
+                      <span
+                        x-text="task.Status.State"
+                        class="font-semibold"
+                      ></span>
                     </span>
                   </div>
                 </template>
@@ -122,7 +122,9 @@
                     }
                     nodeList[nodeIndex].tasks.push(task);
                   });
-                const event = new CustomEvent("refreshnodes", { detail: nodes });
+                const event = new CustomEvent("refreshnodes", {
+                  detail: nodes,
+                });
                 const nodeEl = document.querySelector("#nodelist");
                 nodeEl.dispatchEvent(event);
                 setTimeout(refresh, 1000);
