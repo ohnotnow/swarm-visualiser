@@ -21,7 +21,7 @@
             <div class="bg-gray-500 p-4 rounded mr-4 flex-grow">
               <div
                 class="flex items-center justify-between mb-4 border-l-8 px-2 transition-all"
-                :class="{ 'border-red-600': node.Spec.Availability !== 'active' }"
+                :class="{ 'border-red-600': node.Status.State !== 'ready' }"
               >
                 <span
                   x-text="node.Description.Hostname"
@@ -38,7 +38,7 @@
                   ></span>
                 </span>
               </div>
-              <div class="grid gap-4 grid-cols-1 md:grid-cols-2">
+              <div class="grid gap-4 grid-cols-1 " :class="{ 'md:grid-cols-2' : node.tasks.length > 5 && nodes.length < 5 }">
                 <template x-for="task in node.tasks" x-key="task.ID">
                   <div
                     x-show.transition.duration.300ms="true"
