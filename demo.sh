@@ -14,8 +14,8 @@ wait
 
 while true;
 do
-  NCOUNT=$((1 + RANDOM % 10))
-  HCOUNT=$((1 + RANDOM % 10))
+  NCOUNT=$((1 + RANDOM % 5))
+  HCOUNT=$((1 + RANDOM % 5))
   docker service scale nginx-viz=$NCOUNT &
   docker service scale httpd-viz=$HCOUNT &
   wait

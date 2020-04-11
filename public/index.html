@@ -8,39 +8,42 @@
     <link rel="stylesheet" href="app.css" />
   </head>
   <body class="bg-gray-800">
-    <div class="container mx-auto mt-8">
+    <div class="mx-4 mt-8">
       <div class="flex justify-end w-full opacity-25">
         <img src="docker_logo.svg" />
       </div>
       <div
-        class="flex bg-gray-700 shadow shadow-lg mt-8 p-4"
+        class="bg-gray-700 shadow shadow-lg mt-8 p-4"
         x-data="{nodes: nodeList}"
       >
-        <span @refreshnodes="nodes = $event.detail" id="nodelist">
+        <span @refreshnodes="nodes = $event.detail" id="nodelist" class="flex">
           <template x-for="node in nodes" x-key="node.ID">
-            <div class="bg-gray-500 p-4 rounded">
+            <div class="bg-gray-500 p-4 rounded mr-4 flex-grow">
               <div
-                class="flex items-center justify-between mb-4 border-l-8 px-2"
+                class="flex items-center justify-between mb-4 border-l-8 px-2 transition-all"
                 :class="{ 'border-red-600': node.Spec.Availability !== 'active' }"
               >
                 <span
                   x-text="node.Description.Hostname"
-                  class="text-2xl"
+                  class="text-2xl mr-4"
                 ></span>
                 <span>
                   <span
                     x-text="node.Spec.Role.capitalize()"
-                    class="text-xl"
+                    class="text-xl font-light"
                   ></span>
                   <span
                     x-text="`${Math.round(((node.Description.Resources.MemoryBytes / 1024) / 1024) / 1024)}GB`"
-                    class="text-xl"
+                    class="text-xl font-light"
                   ></span>
                 </span>
               </div>
-              <div class="grid grid-cols-2 gap-4">
+              <div class="grid gap-4 grid-cols-1 md:grid-cols-2">
                 <template x-for="task in node.tasks" x-key="task.ID">
-                  <div x-show.transition.duration.300ms="true" class="bg-gray-600 shadow flex flex-col p-4">
+                  <div
+                    x-show.transition.duration.300ms="true"
+                    class="bg-gray-600 shadow flex flex-col p-4"
+                  >
                     <span
                       class="font-semibold tracking-wider text-gray-100 mb-2 transition-all duration-1000 ease-in-out border-b-2 border-transparent"
                       :class="{ 'border-red-600': task.Status.State !== 'running' }"
@@ -96,21 +99,24 @@
 
       function refresh() {
         fetch("/nodes")
-          .then((res) => {
+          .then(res => {
             return res.json();
           })
-          .then((nodes) => {
-            nodeList = nodes;
+          .then(nodes => {
+            nodeList = nodes.map(node => {
+              node.tasks = [];
+              return node;
+            });
             fetch("/tasks")
-              .then((res) => {
+              .then(res => {
                 return res.json();
               })
-              .then((tasks) => {
+              .then(tasks => {
                 taskList = tasks;
                 taskList
-                  .filter((task) => task.DesiredState === "running")
-                  .forEach((task) => {
-                    let nodeIndex = nodeList.findIndex((node) => {
+                  .filter(task => task.DesiredState === "running")
+                  .forEach(task => {
+                    let nodeIndex = nodeList.findIndex(node => {
                       return node.ID === task.NodeID;
                     });
                     if (nodeIndex === -1) {
@@ -123,7 +129,7 @@
                     nodeList[nodeIndex].tasks.push(task);
                   });
                 const event = new CustomEvent("refreshnodes", {
-                  detail: nodes,
+                  detail: nodes
                 });
                 const nodeEl = document.querySelector("#nodelist");
                 nodeEl.dispatchEvent(event);

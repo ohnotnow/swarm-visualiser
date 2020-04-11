@@ -49,7 +49,23 @@ app.get("/", (req, res) =>
 );
 // json endpoints for the swarm tasks and nodes
 app.get("/tasks", (req, res) => res.send(taskList));
-app.get("/nodes", (req, res) => res.send(nodeList));
+app.get("/nodes", (req, res) => res.send([
+  ...nodeList,
+  {
+    ID: 32,
+    tasks: [],
+    Spec: {
+      Availability: 'flflfl',
+      Role: 'worker'
+    },
+    Description: {
+      Hostname: 'fred',
+      Resources: {
+        MemoryBytes: 200000000
+      }
+    }
+  }
+]));
 
 // and off we go
 refreshDockerInfo();
