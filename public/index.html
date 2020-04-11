@@ -129,7 +129,7 @@
                     nodeList[nodeIndex].tasks.push(task);
                   });
                 const event = new CustomEvent("refreshnodes", {
-                  detail: nodes
+                  detail: nodeList
                 });
                 const nodeEl = document.getElementById("nodelist");
                 nodeEl.dispatchEvent(event);
