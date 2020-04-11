@@ -131,7 +131,7 @@
                 const event = new CustomEvent("refreshnodes", {
                   detail: nodes
                 });
-                const nodeEl = document.querySelector("#nodelist");
+                const nodeEl = document.getElementById("nodelist");
                 nodeEl.dispatchEvent(event);
                 setTimeout(refresh, 1000);
               });

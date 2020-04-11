@@ -5,8 +5,6 @@ This is a simple web page that will show you live updates of the containers runn
 
 ![screenshot](screenshot.png)
 
-Proper docs to follow...
-
 ## Quick Usage
 
 ### Locally
@@ -27,3 +25,10 @@ In either case you should be able to visit http://localhost:3000 in your browser
 There is also a little bash script you can run by doing `./demo.sh` which will create two services
 and scale them randomly between 1-10 containers.
 
+## Development
+
+If you want to change the way things work there are two main files to look at.  `index.js` in the root of the project is the main
+nodejs code to set up express and talk to the Docker API.  Then `public/index.html` has the layout/css and front-end javascript.
+If you are changing the way things look then you can read up on the [tailwindcss](https://tailwindcss.com/) and [AlpineJS](https://github.com/alpinejs/alpine) docs.  You will also
+have to run `npm run dev` to get the full tailwind build so all the classes are available (comes in at about 1mb).  Once you're done
+run `npm run prod` to have it run through [PurgeCSS](https://purgecss.com/) and you should be left with about 2-3kb of css instead.
