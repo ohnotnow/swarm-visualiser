@@ -3,3 +3,15 @@
 @tailwind components;
 
 @tailwind utilities;
+
+#whale
+{
+  animation: swing 2s infinite ease;
+}
+
+@keyframes swing
+{
+  0%{ transform: rotate(-1deg);}
+  50%{ transform: rotate(1deg);}
+  100%{ transform: rotate(-1deg);}
+}
