@@ -19,6 +19,8 @@ node index.js
 docker build -t vis:0.1 .
 docker run -v /var/run/docker.sock:/var/run/docker.sock -p 3000:3000 vis:0.1
 ```
+Or I've built an image and pushed it to Docker Hub that you can use (though you are trusting
+it with your docker socket - so beware). https://hub.docker.com/r/ohffs/swarm-visualiser/tags
 
 In either case you should be able to visit http://localhost:3000 in your browser and see the page.
 
