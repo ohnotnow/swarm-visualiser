@@ -54,6 +54,10 @@
                       <span x-text="task.ID" class="font-semibold"></span>
                     </span>
                     <span class="flex items-center justify-between">
+                      <span class="font-light">Service</span>
+                      <span x-text="task.serviceName" class="font-semibold"></span>
+                    </span>
+                    <span class="flex items-center justify-between">
                       <span class="font-light">Tag</span>
                       <span
                         x-text="task.Spec.ContainerSpec.Image.split(':')[1].split('@')[0]"
@@ -96,6 +100,7 @@
       };
       let nodeList = [];
       let taskList = [];
+      let serviceList = [];
 
       function refresh() {
         fetch("/nodes")
@@ -107,33 +112,39 @@
               node.tasks = [];
               return node;
             });
-            fetch("/tasks")
-              .then(res => {
-                return res.json();
-              })
-              .then(tasks => {
-                taskList = tasks;
-                taskList
-                  .filter(task => task.DesiredState === "running")
-                  .forEach(task => {
-                    let nodeIndex = nodeList.findIndex(node => {
-                      return node.ID === task.NodeID;
+            fetch('/services')
+              .then(res => res.json())
+              .then(services => {
+                fetch("/tasks")
+                  .then(res => {
+                    return res.json();
+                  })
+                  .then(tasks => {
+                    taskList = tasks;
+                    taskList
+                      .filter(task => task.DesiredState === "running")
+                      .forEach(task => {
+                        let nodeIndex = nodeList.findIndex(node => {
+                          return node.ID === task.NodeID;
+                        });
+                        if (nodeIndex === -1) {
+                          console.error("Uh?");
+                          return;
+                        }
+                        if (!nodeList[nodeIndex].hasOwnProperty("tasks")) {
+                          nodeList[nodeIndex].tasks = [];
+                        }
+                        let service = services.find(service => service.ID === task.ServiceID);
+                        task.serviceName = service ? service.Spec.Name : 'Unknown';
+                        nodeList[nodeIndex].tasks.push(task);
+                      });
+                    const event = new CustomEvent("refreshnodes", {
+                      detail: nodeList
                     });
-                    if (nodeIndex === -1) {
-                      console.error("Uh?");
-                      return;
-                    }
-                    if (!nodeList[nodeIndex].hasOwnProperty("tasks")) {
-                      nodeList[nodeIndex].tasks = [];
-                    }
-                    nodeList[nodeIndex].tasks.push(task);
+                    const nodeEl = document.getElementById("nodelist");
+                    nodeEl.dispatchEvent(event);
+                    setTimeout(refresh, 1000);
                   });
-                const event = new CustomEvent("refreshnodes", {
-                  detail: nodeList
-                });
-                const nodeEl = document.getElementById("nodelist");
-                nodeEl.dispatchEvent(event);
-                setTimeout(refresh, 1000);
               });
           });
       }

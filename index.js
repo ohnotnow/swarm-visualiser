@@ -9,6 +9,7 @@ const refreshInterval = process.env.VIS_REFRESH
   : 1000;
 var nodeList = [];
 var taskList = [];
+var serviceList = [];
 
 // inistialise express
 const app = express();
@@ -31,6 +32,7 @@ process.once("SIGTERM", function(code) {
 async function refreshDockerInfo() {
   nodeList = await docker.listNodes().catch((err) => console.error(err));
   taskList = await docker.listTasks().catch((err) => console.error(err));
+  serviceList = await docker.listServices().catch((err) => console.error(err));
   setTimeout(refreshDockerInfo, refreshInterval);
 }
 
@@ -50,6 +52,7 @@ app.get("/", (req, res) =>
 // json endpoints for the swarm tasks and nodes
 app.get("/tasks", (req, res) => res.send(taskList));
 app.get("/nodes", (req, res) => res.send(nodeList));
+app.get("/services", (req, res) => res.send(serviceList));
 
 // and off we go
 refreshDockerInfo();
