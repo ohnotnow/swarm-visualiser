@@ -12,10 +12,7 @@
       <div class="flex justify-end w-full opacity-25" id="whale">
         <img src="docker_logo.svg" />
       </div>
-      <div
-        class="bg-gray-700 shadow shadow-lg mt-8 p-4"
-        x-data="{nodes: nodeList}"
-      >
+      <div class="bg-gray-700 shadow shadow-lg mt-8 p-4" x-data="{nodes: []}">
         <span @refreshnodes="nodes = $event.detail" id="nodelist" class="flex">
           <template x-for="node in nodes" x-key="node.ID">
             <div class="bg-gray-500 p-4 rounded mr-4 flex-grow">
@@ -38,7 +35,10 @@
                   ></span>
                 </span>
               </div>
-              <div class="grid gap-4 grid-cols-1 " :class="{ 'md:grid-cols-2' : node.tasks.length > 5 && nodes.length < 5 }">
+              <div
+                class="grid gap-4 grid-cols-1 "
+                :class="{ 'md:grid-cols-2' : node.tasks.length > 5 && nodes.length < 5 }"
+              >
                 <template x-for="task in node.tasks" x-key="task.ID">
                   <div
                     x-show.transition.duration.300ms="true"
@@ -55,7 +55,10 @@
                     </span>
                     <span class="flex items-center justify-between">
                       <span class="font-light">Service</span>
-                      <span x-text="task.serviceName" class="font-semibold"></span>
+                      <span
+                        x-text="task.serviceName"
+                        class="font-semibold"
+                      ></span>
                     </span>
                     <span class="flex items-center justify-between">
                       <span class="font-light">Tag</span>
@@ -98,54 +101,18 @@
       String.prototype.capitalize = function() {
         return this.charAt(0).toUpperCase() + this.slice(1);
       };
-      let nodeList = [];
-      let taskList = [];
-      let serviceList = [];
-
       function refresh() {
-        fetch("/nodes")
+        fetch("/all")
           .then(res => {
             return res.json();
           })
           .then(nodes => {
-            nodeList = nodes.map(node => {
-              node.tasks = [];
-              return node;
+            const event = new CustomEvent("refreshnodes", {
+              detail: nodes
             });
-            fetch('/services')
-              .then(res => res.json())
-              .then(services => {
-                fetch("/tasks")
-                  .then(res => {
-                    return res.json();
-                  })
-                  .then(tasks => {
-                    taskList = tasks;
-                    taskList
-                      .filter(task => task.DesiredState === "running")
-                      .forEach(task => {
-                        let nodeIndex = nodeList.findIndex(node => {
-                          return node.ID === task.NodeID;
-                        });
-                        if (nodeIndex === -1) {
-                          console.error("Uh?");
-                          return;
-                        }
-                        if (!nodeList[nodeIndex].hasOwnProperty("tasks")) {
-                          nodeList[nodeIndex].tasks = [];
-                        }
-                        let service = services.find(service => service.ID === task.ServiceID);
-                        task.serviceName = service ? service.Spec.Name : 'Unknown';
-                        nodeList[nodeIndex].tasks.push(task);
-                      });
-                    const event = new CustomEvent("refreshnodes", {
-                      detail: nodeList
-                    });
-                    const nodeEl = document.getElementById("nodelist");
-                    nodeEl.dispatchEvent(event);
-                    setTimeout(refresh, 1000);
-                  });
-              });
+            const nodeEl = document.getElementById("nodelist");
+            nodeEl.dispatchEvent(event);
+            setTimeout(refresh, 1000);
           });
       }
 
